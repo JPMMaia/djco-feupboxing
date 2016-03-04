@@ -14,33 +14,55 @@ class DJCO_BOXINGGAME_API ADefaultPlayerCharacter : public APaperCharacter
 {
 	GENERATED_BODY()
 
+private:
+	enum class FActionState
+	{
+		None,
+		Punch,
+		Kick,
+		Block,
+		Jump
+	};
+
 public:
 
 	// Sets default values for this pawn's properties
 	ADefaultPlayerCharacter();
 
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	void BeginPlay() override;
 
 	// Called every frame
-	virtual void Tick(float DeltaSeconds) override;
+	void Tick(float DeltaSeconds) override;
 
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	void MoveRight(float AxisValue);
+	void Punch();
+	void Kick();
+	void StartBlocking();
+	void StopBlocking();
+	void Jump() override;
 
-	void UpdateCharacter();
-	void UpdateAnimation();
-
-
-	UPROPERTY(BlueprintReadOnly)
-		bool IsMoving;
+	void UpdateCharacter(float DeltaSeconds);
+	void UpdateAnimation() const;
 
 	UPROPERTY(EditAnywhere, Category="Animations")
 		UPaperFlipbook* IdleAnimation;
 	UPROPERTY(EditAnywhere, Category = "Animations")
 		UPaperFlipbook* WalkAnimation;
+	UPROPERTY(EditAnywhere, Category = "Animations")
+		UPaperFlipbook* PunchAnimation;
+	UPROPERTY(EditAnywhere, Category = "Animations")
+		UPaperFlipbook* KickAnimation;
+	UPROPERTY(EditAnywhere, Category = "Animations")
+		UPaperFlipbook* StartBlockAnimation;
+	UPROPERTY(EditAnywhere, Category = "Animations")
+		UPaperFlipbook* BlockAnimation;
+	UPROPERTY(EditAnywhere, Category = "Animations")
+		UPaperFlipbook* JumpAnimation;
 
 private:
-	bool MovingRight;
+	FActionState ActionState;
+	float AnimationTimer;
 };

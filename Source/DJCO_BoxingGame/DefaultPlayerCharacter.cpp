@@ -5,8 +5,8 @@
 
 
 ADefaultPlayerCharacter::ADefaultPlayerCharacter() :
-	IsMoving(false),
-	MovingRight(true)
+	ActionState(FActionState::None),
+	AnimationTimer(0.0f)
 {
 	auto sprite = GetSprite();
 	sprite->SetFlipbook(IdleAnimation);
@@ -20,7 +20,7 @@ void ADefaultPlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	UpdateCharacter();
+	UpdateCharacter(DeltaSeconds);
 }
 
 void ADefaultPlayerCharacter::SetupPlayerInputComponent(UInputComponent* InputComponent)
@@ -28,14 +28,58 @@ void ADefaultPlayerCharacter::SetupPlayerInputComponent(UInputComponent* InputCo
 	Super::SetupPlayerInputComponent(InputComponent);
 
 	InputComponent->BindAxis("MoveRight", this, &ADefaultPlayerCharacter::MoveRight);
+	InputComponent->BindAction("Punch", IE_Pressed, this, &ADefaultPlayerCharacter::Punch);
+	InputComponent->BindAction("Kick", IE_Pressed, this, &ADefaultPlayerCharacter::Kick);
+	InputComponent->BindAction("Block", IE_Pressed, this, &ADefaultPlayerCharacter::StartBlocking);
+	InputComponent->BindAction("Block", IE_Released, this, &ADefaultPlayerCharacter::StopBlocking);
+	InputComponent->BindAction("Jump", IE_Pressed, this, &ADefaultPlayerCharacter::Jump);
 }
 void ADefaultPlayerCharacter::MoveRight(float AxisValue)
 {
+	if (ActionState != FActionState::None)
+		return;
+
 	static const auto worldRightDirection = FVector(1.0f, 0.0f, 0.0f);
 	AddMovementInput(worldRightDirection, FMath::Clamp(AxisValue, -1.0f, 1.0f));
 }
+void ADefaultPlayerCharacter::Punch()
+{
+	if (ActionState != FActionState::None)
+		return;
 
-void ADefaultPlayerCharacter::UpdateCharacter()
+	ActionState = FActionState::Punch;
+	AnimationTimer = 0.0f;
+}
+void ADefaultPlayerCharacter::Kick()
+{
+	if (ActionState != FActionState::None)
+		return;
+
+	ActionState = FActionState::Kick;
+	AnimationTimer = 0.0f;
+}
+void ADefaultPlayerCharacter::StartBlocking()
+{
+	if (ActionState != FActionState::None)
+		return;
+	
+	ActionState = FActionState::Block;
+	AnimationTimer = 0.0f;
+}
+void ADefaultPlayerCharacter::StopBlocking()
+{
+	if (ActionState == FActionState::Block)
+		ActionState = FActionState::None;
+}
+void ADefaultPlayerCharacter::Jump()
+{
+	ACharacter::Jump();
+
+	if (ActionState == FActionState::None)
+		ActionState = FActionState::Jump;
+}
+
+void ADefaultPlayerCharacter::UpdateCharacter(float DeltaSeconds)
 {
 	UpdateAnimation();
 
@@ -55,14 +99,59 @@ void ADefaultPlayerCharacter::UpdateCharacter()
 			Controller->SetControlRotation(FRotator(0.0f, 0.0f, 0.0f));
 		}
 	}
-}
-void ADefaultPlayerCharacter::UpdateAnimation()
-{
-	const auto PlayerVelocity = GetVelocity();
-	const auto PlayerSpeed = PlayerVelocity.Size();
 
-	// Are we moving or standing still?
-	auto DesiredAnimation = (PlayerSpeed > 0.0f) ? WalkAnimation : IdleAnimation;
+	AnimationTimer += DeltaSeconds;
+	if((ActionState == FActionState::Punch || ActionState == FActionState::Kick)
+		&& AnimationTimer > 0.3f)
+	{
+		ActionState = FActionState::None;
+		AnimationTimer = 0.0f;
+	}
+	else if (ActionState == FActionState::Jump && GetVelocity().Z <= 0.01f)
+		ActionState = FActionState::None;
+}
+void ADefaultPlayerCharacter::UpdateAnimation() const
+{
+	UPaperFlipbook* DesiredAnimation;
+
+	switch(ActionState)
+	{
+	case FActionState::None: 
+		{
+			const auto PlayerVelocity = GetVelocity();
+			const auto PlayerSpeed = PlayerVelocity.Size();
+
+			// Are we walking?
+			if (PlayerSpeed > 0.0f)
+				DesiredAnimation = WalkAnimation;
+
+			// We are idle:
+			else
+				DesiredAnimation = IdleAnimation;
+		}
+
+		break;
+
+	case FActionState::Punch: 
+		DesiredAnimation = PunchAnimation;
+		break;
+
+	case FActionState::Kick:
+		DesiredAnimation = KickAnimation;
+		break;
+
+	case FActionState::Block: 
+		DesiredAnimation = AnimationTimer > 0.2f ? BlockAnimation : StartBlockAnimation;
+		break;
+
+	case FActionState::Jump:
+		DesiredAnimation = JumpAnimation;
+		break;
+
+	default:
+		return;
+	}
+	
 	if (GetSprite()->GetFlipbook() != DesiredAnimation)
 	{
 		GetSprite()->SetFlipbook(DesiredAnimation);
