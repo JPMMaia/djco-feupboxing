@@ -1,40 +1,42 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "DJCO_BoxingGame.h"
-#include "DefaultPlayerCharacter.h"
+#include "FighterCharacter.h"
 
 
-ADefaultPlayerCharacter::ADefaultPlayerCharacter() :
+AFighterCharacter::AFighterCharacter() :
 	ActionState(FActionState::None),
-	AnimationTimer(0.0f)
+	AnimationTimer(0.0f),
+	Health(1.0f),
+	Energy(1.0f)
 {
 	auto sprite = GetSprite();
 	sprite->SetFlipbook(IdleAnimation);
 }
 
-void ADefaultPlayerCharacter::BeginPlay()
-{
+void AFighterCharacter::BeginPlay()
+{	
 }
 
-void ADefaultPlayerCharacter::Tick(float DeltaSeconds)
+void AFighterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
 	UpdateCharacter(DeltaSeconds);
 }
 
-void ADefaultPlayerCharacter::SetupPlayerInputComponent(UInputComponent* InputComponent)
+void AFighterCharacter::SetupPlayerInputComponent(UInputComponent* InputComponent)
 {
 	Super::SetupPlayerInputComponent(InputComponent);
 
-	InputComponent->BindAxis("MoveRight", this, &ADefaultPlayerCharacter::MoveRight);
-	InputComponent->BindAction("Punch", IE_Pressed, this, &ADefaultPlayerCharacter::Punch);
-	InputComponent->BindAction("Kick", IE_Pressed, this, &ADefaultPlayerCharacter::Kick);
-	InputComponent->BindAction("Block", IE_Pressed, this, &ADefaultPlayerCharacter::StartBlocking);
-	InputComponent->BindAction("Block", IE_Released, this, &ADefaultPlayerCharacter::StopBlocking);
-	InputComponent->BindAction("Jump", IE_Pressed, this, &ADefaultPlayerCharacter::Jump);
+	InputComponent->BindAxis("MoveRight", this, &AFighterCharacter::MoveRight);
+	InputComponent->BindAction("Punch", IE_Pressed, this, &AFighterCharacter::Punch);
+	InputComponent->BindAction("Kick", IE_Pressed, this, &AFighterCharacter::Kick);
+	InputComponent->BindAction("Block", IE_Pressed, this, &AFighterCharacter::StartBlocking);
+	InputComponent->BindAction("Block", IE_Released, this, &AFighterCharacter::StopBlocking);
+	InputComponent->BindAction("Jump", IE_Pressed, this, &AFighterCharacter::Jump);
 }
-void ADefaultPlayerCharacter::MoveRight(float AxisValue)
+void AFighterCharacter::MoveRight(float AxisValue)
 {
 	if (ActionState != FActionState::None)
 		return;
@@ -42,7 +44,7 @@ void ADefaultPlayerCharacter::MoveRight(float AxisValue)
 	static const auto worldRightDirection = FVector(1.0f, 0.0f, 0.0f);
 	AddMovementInput(worldRightDirection, FMath::Clamp(AxisValue, -1.0f, 1.0f));
 }
-void ADefaultPlayerCharacter::Punch()
+void AFighterCharacter::Punch()
 {
 	if (ActionState != FActionState::None)
 		return;
@@ -50,7 +52,7 @@ void ADefaultPlayerCharacter::Punch()
 	ActionState = FActionState::Punch;
 	AnimationTimer = 0.0f;
 }
-void ADefaultPlayerCharacter::Kick()
+void AFighterCharacter::Kick()
 {
 	if (ActionState != FActionState::None)
 		return;
@@ -58,7 +60,7 @@ void ADefaultPlayerCharacter::Kick()
 	ActionState = FActionState::Kick;
 	AnimationTimer = 0.0f;
 }
-void ADefaultPlayerCharacter::StartBlocking()
+void AFighterCharacter::StartBlocking()
 {
 	if (ActionState != FActionState::None)
 		return;
@@ -66,12 +68,12 @@ void ADefaultPlayerCharacter::StartBlocking()
 	ActionState = FActionState::Block;
 	AnimationTimer = 0.0f;
 }
-void ADefaultPlayerCharacter::StopBlocking()
+void AFighterCharacter::StopBlocking()
 {
 	if (ActionState == FActionState::Block)
 		ActionState = FActionState::None;
 }
-void ADefaultPlayerCharacter::Jump()
+void AFighterCharacter::Jump()
 {
 	ACharacter::Jump();
 
@@ -79,7 +81,7 @@ void ADefaultPlayerCharacter::Jump()
 		ActionState = FActionState::Jump;
 }
 
-void ADefaultPlayerCharacter::UpdateCharacter(float DeltaSeconds)
+void AFighterCharacter::UpdateCharacter(float DeltaSeconds)
 {
 	UpdateAnimation();
 
@@ -110,7 +112,7 @@ void ADefaultPlayerCharacter::UpdateCharacter(float DeltaSeconds)
 	else if (ActionState == FActionState::Jump && GetVelocity().Z <= 0.01f)
 		ActionState = FActionState::None;
 }
-void ADefaultPlayerCharacter::UpdateAnimation() const
+void AFighterCharacter::UpdateAnimation() const
 {
 	UPaperFlipbook* DesiredAnimation;
 
@@ -141,7 +143,7 @@ void ADefaultPlayerCharacter::UpdateAnimation() const
 		break;
 
 	case FActionState::Block: 
-		DesiredAnimation = AnimationTimer > 0.2f ? BlockAnimation : StartBlockAnimation;
+		DesiredAnimation = AnimationTimer > 0.1f ? BlockAnimation : StartBlockAnimation;
 		break;
 
 	case FActionState::Jump:

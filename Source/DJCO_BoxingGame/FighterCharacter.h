@@ -4,13 +4,13 @@
 
 #include "PaperCharacter.h"
 #include "Paper2DClasses.h"
-#include "DefaultPlayerCharacter.generated.h"
+#include "FighterCharacter.generated.h"
 
 /**
  *
  */
 UCLASS()
-class DJCO_BOXINGGAME_API ADefaultPlayerCharacter : public APaperCharacter
+class DJCO_BOXINGGAME_API AFighterCharacter : public APaperCharacter
 {
 	GENERATED_BODY()
 
@@ -27,7 +27,7 @@ private:
 public:
 
 	// Sets default values for this pawn's properties
-	ADefaultPlayerCharacter();
+	AFighterCharacter();
 
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
@@ -37,17 +37,18 @@ public:
 
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-	void MoveRight(float AxisValue);
-	void Punch();
-	void Kick();
-	void StartBlocking();
-	void StopBlocking();
-	void Jump() override;
+
+	UFUNCTION(BlueprintCallable, Category = "Actions") void MoveRight(float AxisValue);
+	UFUNCTION(BlueprintCallable, Category = "Actions") void Punch();
+	UFUNCTION(BlueprintCallable, Category = "Actions") void Kick();
+	UFUNCTION(BlueprintCallable, Category = "Actions") void StartBlocking();
+	UFUNCTION(BlueprintCallable, Category = "Actions") void StopBlocking();
+	UFUNCTION(BlueprintCallable, Category = "Actions") void Jump() override;
 
 	void UpdateCharacter(float DeltaSeconds);
 	void UpdateAnimation() const;
 
-	UPROPERTY(EditAnywhere, Category="Animations")
+	UPROPERTY(EditAnywhere, Category = "Animations")
 		UPaperFlipbook* IdleAnimation;
 	UPROPERTY(EditAnywhere, Category = "Animations")
 		UPaperFlipbook* WalkAnimation;
@@ -61,6 +62,11 @@ public:
 		UPaperFlipbook* BlockAnimation;
 	UPROPERTY(EditAnywhere, Category = "Animations")
 		UPaperFlipbook* JumpAnimation;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Stats")
+		float Health;
+	UPROPERTY(BlueprintReadWrite, Category = "Stats")
+		float Energy;
 
 private:
 	FActionState ActionState;
