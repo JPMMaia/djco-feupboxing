@@ -16,6 +16,9 @@ AFighterCharacter::AFighterCharacter() :
 
 void AFighterCharacter::BeginPlay()
 {	
+	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("BeginPlay!!!"));
 }
 
 void AFighterCharacter::Tick(float DeltaSeconds)
@@ -158,4 +161,9 @@ void AFighterCharacter::UpdateAnimation() const
 	{
 		GetSprite()->SetFlipbook(DesiredAnimation);
 	}
+}
+
+bool AFighterCharacter::IsPunching() const
+{
+	return ActionState == FActionState::Punch;
 }

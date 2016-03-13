@@ -48,6 +48,8 @@ public:
 	void UpdateCharacter(float DeltaSeconds);
 	void UpdateAnimation() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Actions") bool IsPunching() const;
+
 	UPROPERTY(EditAnywhere, Category = "Animations")
 		UPaperFlipbook* IdleAnimation;
 	UPROPERTY(EditAnywhere, Category = "Animations")
