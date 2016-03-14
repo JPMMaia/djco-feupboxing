@@ -3,4 +3,6 @@
 #pragma once
 
 #include "Engine.h"
+#include "HighScoreListSaveGame.h"
+#include "Kismet/GameplayStatics.h"
 
