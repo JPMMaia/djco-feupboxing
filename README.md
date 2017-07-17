@@ -5,7 +5,7 @@
 Features:
 
 * Single player mode against AI-controlled enemy
-* Multiplayer mode integrated with Steam
+* Multiplayer online mode integrated with Steam
 * Special powers including fireballs, teleport and invisibility
 * Collectables that restore HP and energy
 * Highscores
