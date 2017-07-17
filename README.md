@@ -1,6 +1,6 @@
 # FEUP Boxing
 
-*FEUP Boxing* is a 2D game developed in Unreal Engine for the "Computer Games Development" course of [MIEIC](https://sigarra.up.pt/feup/en/CUR_GERAL.CUR_VIEW?pv_curso_id=742&pv_ano_lectivo=2016) @ [FEUP](https://sigarra.up.pt/feup/en/web_page.Inicial).
+*FEUP Boxing* is a 2D game developed in Unreal Engine for the [Computer Games Development](https://sigarra.up.pt/feup/en/UCURR_GERAL.FICHA_UC_VIEW?pv_ocorrencia_id=384963) course of [MIEIC](https://sigarra.up.pt/feup/en/CUR_GERAL.CUR_VIEW?pv_curso_id=742&pv_ano_lectivo=2016) @ [FEUP](https://sigarra.up.pt/feup/en/web_page.Inicial).
 
 Features:
 
